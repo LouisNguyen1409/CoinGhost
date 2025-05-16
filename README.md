@@ -2,6 +2,11 @@
 
 CoinGhost is an cryptocurrency trading bot that uses natural language models to analyze news data and make trading decisions for cryptocurrencies.
 
+## Development Status
+
+- **Version 1**: ✅ Complete - A functional trading bot using AI to analyze news for Bitcoin trading decisions
+- **Version 2**: 🚧 In Progress - Expanding capabilities and improving performance
+
 ## Features
 
 - Automated cryptocurrency trading strategy based on news sentiment analysis
@@ -67,9 +72,13 @@ python v1/get_news.py
 
 ## Project Structure
 
-- `trading.py`: Contains the main MLTrader strategy class that implements the trading logic
-- `llm.py`: Interface to language models (GPT-4.1, Gemma, Mistral) for news analysis
-- `get_news.py`: Functions for fetching and processing news from various sources
+### Version 1
+
+- `v1/trading.py`: Contains the main MLTrader strategy class that implements the trading logic
+- `v1/llm.py`: Interface to language models (GPT-4.1, Gemma, Mistral) for news analysis
+- `v1/get_news.py`: Functions for fetching and processing news from various sources
+
+### Version 2 (Coming Soon)
 
 ## Configuration
 
