@@ -1,4 +1,4 @@
-# CoinGhost v1
+# CoinGhost
 
 CoinGhost is an cryptocurrency trading bot that uses natural language models to analyze news data and make trading decisions for cryptocurrencies.
 
