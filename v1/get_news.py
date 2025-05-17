@@ -53,6 +53,8 @@ def google_news(coin: str, start_date: str, end_date: str):
     title = list(set(title))
     news_articles = []
     for url, title in zip(raw_url, title):
+        if len(news_articles) == 10:
+            break
         article = process_article(url, title)
         if article:
             news_articles.append(article)

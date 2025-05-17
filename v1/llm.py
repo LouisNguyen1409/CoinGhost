@@ -34,9 +34,9 @@ def stream_from_lm(model_name: str, prompt: str, temperature=0.7, top_p=0.9):
 
 
 def get_recommendation(coin: str, start_date: str, end_date: str):
-    # gg_news = google_news(coin, start_date, end_date)
-    alp_news = alpaca_news(coin, start_date, end_date)
-    news = alp_news
+    gg_news = google_news(coin, start_date, end_date)
+    # alp_news = alpaca_news(coin, start_date, end_date)
+    news = gg_news
 
     model_name = MODEL
 
