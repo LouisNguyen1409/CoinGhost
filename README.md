@@ -10,7 +10,6 @@ CoinGhost is an cryptocurrency trading bot that uses natural language models to 
 ## Features
 
 - Automated cryptocurrency trading strategy based on news sentiment analysis
-- Utilizes GPT-4.1 (with alternative options for Gemma and Mistral models)
 - Fetches and analyzes latest news from Alpaca and Google News APIs
 - Provides buy/sell/hold recommendations with confidence scores
 - Backtesting capabilities using CCXT
@@ -48,10 +47,13 @@ pip install -r requirements.txt
 4. Create a `.env` file in the project root with your API keys:
 
 ```
-OPENAI_API_KEY=your_openai_api_key
 API_KEY=your_alpaca_api_key
 API_SECRET=your_alpaca_api_secret
 BASE_URL=https://paper-api.alpaca.markets/v2  # or your preferred Alpaca endpoint
+OPENAI_API_KEY=your_openai_api_key
+LMSTUDIO_API_KEY=your_lmstudio_api_key
+LMSTUDIO_API_URL=your_lmstudio_api_url
+LM_MODEL_NAME=your_lm_model_name
 ```
 
 ## Usage
@@ -75,8 +77,22 @@ python v1/get_news.py
 ### Version 1
 
 - `v1/trading.py`: Contains the main MLTrader strategy class that implements the trading logic
-- `v1/llm.py`: Interface to language models (GPT-4.1, Gemma, Mistral) for news analysis
+- `v1/llm.py`: Interface to language models (GPT-4.1, Gemma, Mistral, ...) for news analysis
 - `v1/get_news.py`: Functions for fetching and processing news from various sources
+
+### Benchmarking
+
+Model: Mistral-7b-instruct-v0.3 (Context length: 32768 tokens)
+🚧 In Progress
+
+Model: Gemma-3-27B-it (Context length: 0 tokens)
+🚧 In Progress
+
+Model: DeepSeek-R1-Distill-Llama-8B (Context length: 0 tokens)
+🚧 In Progress
+
+Model: DeepSeek-R1-Distill-Qwen-7B (Context length: 131072 tokens)
+🚧 In Progress
 
 ### Version 2 (Coming Soon)
 
