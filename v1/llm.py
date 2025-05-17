@@ -3,7 +3,7 @@ import re
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
-
+import json
 
 load_dotenv()
 LMSTUDIO_API_KEY = os.getenv("LMSTUDIO_API_KEY")
@@ -66,6 +66,9 @@ After you've done that for every item, write a **final decision** by combining a
             full_response += delta
     print("\n" + "-"*50 + "\n")
 
+    response = json.loads(full_response)
+    choice = response.get("choice")
+    confidence = response.get("confidence")
     # Extract JSON result
     m = re.search(
         r'"choice"\s*:\s*"(buy|sell|hold)"\s*,\s*"confidence"\s*:\s*"?([\d\.]+)"?',

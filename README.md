@@ -82,16 +82,16 @@ python v1/get_news.py
 
 ### Benchmarking
 
-Model: Mistral-7b-instruct-v0.3 (Context length: 32768 tokens)
+Model: Mistral-7b-instruct-v0.3 (Context length: 32768 tokens ~ 24,600 words)
 🚧 In Progress
 
-Model: Gemma-3-27B-it (Context length: 0 tokens)
+Model: Gemma-3-27B-it (Context length: 131072 tokens ~ 97,750 words)
 🚧 In Progress
 
-Model: DeepSeek-R1-Distill-Llama-8B (Context length: 0 tokens)
+Model: DeepSeek-R1-Distill-Llama-8B (Context length: 131072 tokens ~ 97,750 words)
 🚧 In Progress
 
-Model: DeepSeek-R1-Distill-Qwen-7B (Context length: 131072 tokens)
+Model: DeepSeek-R1-Distill-Qwen-7B (Context length: 131072 tokens ~ 97,750 words)
 🚧 In Progress
 
 ### Version 2 (Coming Soon)
