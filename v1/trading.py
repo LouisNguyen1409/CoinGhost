@@ -39,6 +39,7 @@ class MLTrader(Strategy):
         choice, confidence = get_recommendation(
             coin=self.coin, start_date=day_prior, end_date=today
         )
+        print("Decision: ", choice, "Confidence: ", confidence)
         if last_price != None and quantity > 0:
             if cash > (quantity * last_price):
 

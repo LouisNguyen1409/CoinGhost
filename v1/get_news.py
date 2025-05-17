@@ -27,8 +27,11 @@ def alpaca_news(coin: str, start_date: str, end_date: str):
     news_articles = []
     for url in news_urls:
         articles = get_content(url)
-        news_articles.append({articles.get("title"): articles.get("text")})
-        print("✅ Title: ", articles.get("title"))
+        if articles:  # Check if articles is not None
+            news_articles.append({articles.get("title"): articles.get("text")})
+            print("✅ Title: ", articles.get("title"))
+        else:
+            print(f"❌ Error: Could not retrieve content from {url}")
     return news_articles
 
 
@@ -223,3 +226,13 @@ def process_article(raw_url, title):
     else:
         print(f"❌ Error processing article: {title}")
         return None
+
+
+if __name__ == "__main__":
+    # Example usage
+    coin = "BTC"
+    start_date = datetime(2024, 5, 23)
+    end_date = datetime(2025, 5, 24)
+
+    alpaca_news(coin, start_date, end_date)
+    # google_news(coin, start_date, end_date)

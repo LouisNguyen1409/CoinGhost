@@ -1,16 +1,36 @@
 from get_news import google_news, alpaca_news
-import mlx.core as mx
-from mlx_lm import load, generate
-import torch
-from datetime import datetime
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
-from threading import Thread
 import re
 from dotenv import load_dotenv
 from openai import OpenAI
 import os
 
-model_name = "mlx-community/gemma-3-27b-it-4bit"
+
+load_dotenv()
+LMSTUDIO_API_KEY = os.getenv("LMSTUDIO_API_KEY")
+LMSTUDIO_API_URL = os.getenv("LMSTUDIO_API_URL")
+MODEL = os.getenv("LM_MODEL_NAME")
+
+client = OpenAI(api_key=LMSTUDIO_API_KEY, base_url=LMSTUDIO_API_URL)
+
+
+def stream_from_lm(model_name: str, prompt: str, temperature=0.7, top_p=0.9):
+    """
+    Stream chat completions using only user/assistant roles.
+    """
+    user_prompt = (
+        "You are a helpful financial assistant.\n\n"
+        + prompt
+    )
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=temperature,
+        top_p=top_p,
+        stream=True
+    )
+    return response
 
 
 def get_recommendation(coin: str, start_date: str, end_date: str):
@@ -18,163 +38,42 @@ def get_recommendation(coin: str, start_date: str, end_date: str):
     alp_news = alpaca_news(coin, start_date, end_date)
     news = alp_news
 
-    # UNCOMMENT THIS TO USE GEMMA MODEL
-    # model_name = "mlx-community/gemma-3-27b-it-4bit"
-    # model, tokenizer = load(model_name)
-    # prompt = f"""You are a helpful financial assistant.
-    # Here are the latest Bitcoin news items:
-    # {news}
+    model_name = MODEL
 
-    # INSTRUCTION:
-    # For each news item, in order:
-    # 1. **Extraction**: Summarize the key fact or development.
-    # 2. **Impact**: Explain how that development might affect Bitcoin's price.
-    # 3. **Signal**: Give a preliminary signal for *that item* – "buy", "hold", or "sell" – with a confidence score between 0.0 and 1.0.
-
-    # After you've done that for every item, write a **final decision** by combining all the signals into a single JSON object exactly in this format (and nothing else):
-
-    # "choice": "<buy|sell|hold>",
-    # "confidence": "<float>"
-    # """
-    # response = generate(
-    #     model,
-    #     tokenizer,
-    #     prompt=prompt,
-    #     max_tokens=100000,
-    #     temperature=0.7
-    # )
-
-    # print(response)
-
-    # UNCOMMENT THIS TO USE MISTRAL MODEL
-    # model_name = "mistralai/Mistral-7B-Instruct-v0.3"
-    # tokenizer = AutoTokenizer.from_pretrained(model_name)
-    # tokenizer.pad_token = tokenizer.eos_token
-    # tokenizer.padding_side = "left"
-    # device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     model_name,
-    #     torch_dtype=torch.float16,      # Use half precision
-    #     low_cpu_mem_usage=True,        # Optimize CPU memory usage
-    #     device_map={"": device}        # Map to MPS device
-    # )
-    # print(len(news[:7]))
-    # prompt = f"""<s>[INST]
-    # SYSTEM: You are a helpful financial assistant.
-
-    # USER: Here are the latest Bitcoin news items:
-    # {news[:6]}
-
-    # INSTRUCTION:
-    # For each news item, in order:
-    # 1. **Extraction**: Summarize the key fact or development.
-    # 2. **Impact**: Explain how that development might affect Bitcoin's price.
-    # 3. **Signal**: Give a preliminary signal for *that item* – "buy", "hold", or "sell" – with a confidence score between 0.0 and 1.0.
-
-    # After you've done that for every item, write a **final decision** by combining all the signals into a single JSON object exactly in this format (and nothing else):
-
-    # "choice": "<buy|sell|hold>",
-    # "confidence": "<float>"
-    # [/INST]"""
-
-    # inputs = tokenizer(
-    #     prompt,
-    #     return_tensors="pt",
-    #     padding=True,
-    #     add_special_tokens=True
-    # )
-    # inputs = {k: v.to(device) for k, v in inputs.items()}
-
-    # # Set up the streamer for asynchronous output
-    # streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-
-    # # Generate with optimized settings for MPS
-    # generation_kwargs = {
-    #     "input_ids": inputs["input_ids"],
-    #     "attention_mask": inputs["attention_mask"],
-    #     "max_new_tokens": 100000,
-    #     "temperature": 0.7,
-    #     "top_p": 0.9,
-    #     "do_sample": True,
-    #     "pad_token_id": tokenizer.pad_token_id,
-    #     "eos_token_id": tokenizer.eos_token_id,
-    #     "streamer": streamer
-    # }
-
-    # # Start generation in a separate thread
-    # thread = Thread(target=model.generate, kwargs=generation_kwargs)
-    # thread.start()
-
-    # # Process the streamed output in the main thread
-    # full_response = ""
-    # print("\nStreaming response:\n" + "-"*50)
-    # for text in streamer:
-    #     print(text, end="", flush=True)
-    #     full_response += text
-    # print("\n" + "-"*50 + "\n")
-
-    # # Wait for the generation to complete
-    # thread.join()
-
-    # # Extract only the JSON part from the response
-    # m = re.search(
-    #     r'[\s\S]*["\'](choice)["\']\s*:\s*["\'](buy|sell|hold)["\'],\s*["\'](confidence)["\']\s*:\s*(["\']{0,1})([\d\.]+)(["\']{0,1})', full_response, re.IGNORECASE)
-    # if m:
-    #     choice = m.group(2)
-    #     confidence = float(m.group(5))
-    # else:
-    #     # Default values if JSON can't be extracted
-    #     choice = "hold"
-    #     confidence = 1
-
-    # UNCOMMENT THIS TO USE OPENAI MODEL
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-    client = OpenAI(api_key=api_key)
+    # Build instruction prompt
     prompt = f"""Here are the latest Bitcoin news items:
-    {news}
+{news}
 
-    INSTRUCTION:
-    For each news item, in order:
-    1. **Extraction**: Summarize the key fact or development.
-    2. **Impact**: Explain how that development might affect Bitcoin's price.
-    3. **Signal**: Give a preliminary signal for *that item* – "buy", "hold", or "sell" – with a confidence score between 0.0 and 1.0.
+INSTRUCTION:
+For each news item, in order:
+1. **Extraction**: Summarize the key fact or development.
+2. **Impact**: Explain how that development might affect Bitcoin's price.
+3. **Signal**: Give a preliminary signal for *that item* – "buy", "hold", or "sell" – with a confidence score between 0.0 and 1.0.
 
-    After you've done that for every item, write a **final decision** by combining all the signals into a single JSON object exactly in this format (and nothing else):
+After you've done that for every item, write a **final decision** by combining all the signals into a single JSON object exactly in this format (and nothing else):
 
-    "choice": "<buy|sell|hold>",
-    "confidence": "<float>"
-    """
+"choice": "<buy|sell|hold>",
+"confidence": "<float>"
+"""
 
-    # Stream the response
-    stream = client.chat.completions.create(
-        model="gpt-4.1",
-        messages=[
-            {"role": "system", "content": "You are a helpful financial assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        stream=True
-    )
-
-    # Print chunks as they arrive
+    # Stream the completion
     full_response = ""
-    print("\nStreaming response:\n" + "-"*50)
-    for chunk in stream:
-        if chunk.choices[0].delta.content is not None:
-            content = chunk.choices[0].delta.content
-            print(content, end="", flush=True)
-            full_response += content
-    print("\n" + "-"*50)
+    print("\nStreaming response from LM Studio:\n" + "-"*50)
+    for chunk in stream_from_lm(model_name, prompt):
+        delta = chunk.choices[0].delta.content
+        if delta is not None:  # Check if delta is not None before concatenating
+            print(delta, end="", flush=True)
+            full_response += delta
+    print("\n" + "-"*50 + "\n")
 
-    # Extract the JSON part from the response
+    # Extract JSON result
     m = re.search(
-        r'[\s\S]*["\'](choice)["\']\s*:\s*["\'](buy|sell|hold)["\'],\s*["\'](confidence)["\']\s*:\s*(["\']{0,1})([\d\.]+)(["\']{0,1})', full_response, re.IGNORECASE)
+        r'"choice"\s*:\s*"(buy|sell|hold)"\s*,\s*"confidence"\s*:\s*"?([\d\.]+)"?',
+        full_response, re.IGNORECASE
+    )
     if m:
-        choice = m.group(2)
-        confidence = float(m.group(5))
+        choice, confidence = m.group(1), float(m.group(2))
     else:
-        # Default values if JSON can't be extracted
-        choice = "hold"
-        confidence = 1
+        choice, confidence = "hold", 1.0
 
     return choice, confidence
