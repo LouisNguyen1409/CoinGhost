@@ -17,9 +17,11 @@ CoinGhost is an cryptocurrency trading bot that uses natural language models to 
 ## Requirements
 
 - Python 3.11+
+- LM Studio or Ollama or OpenAI
 - MLX (Apple Silicon optimized ML library)
-- OpenAI API key
-- Alpaca API credentials
+- OpenAI API key (optional)
+- Alpaca API credentials (optional)
+- LM Studio API credentials (optional)
 
 ## Installation
 
@@ -84,17 +86,17 @@ python v1/get_news.py
 
 Testing models with 10 news articles:
 
-Model: Mistral-7b-instruct-v0.3 (Context length: 16384 tokens ~ 12,288 words)
-🚧 In Progress
-
-Model: Gemma-3-27B-it (Context length: 16384 tokens ~ 12,288 words)
-🚧 In Progress
-
 Model: DeepSeek-R1-Distill-Llama-8B (Context length: 16384 tokens ~ 12,288 words)
-🚧 In Progress
+
+![alt text](./v1/benchmark/DeepSeek-R1-Distill-Llama-8B/image1.png)
+
+![alt text](./v1/benchmark/DeepSeek-R1-Distill-Llama-8B/image2.png)
 
 Model: DeepSeek-R1-Distill-Qwen-7B (Context length: 16384 tokens ~ 12,288 words)
-🚧 In Progress
+
+![alt text](./v1/benchmark/DeepSeek-R1-Distill-Qwen-7B/image1.png)
+
+![alt text](./v1/benchmark/DeepSeek-R1-Distill-Qwen-7B/image2.png)
 
 
 ### Version 2 (Coming Soon)
@@ -103,9 +105,32 @@ Model: DeepSeek-R1-Distill-Qwen-7B (Context length: 16384 tokens ~ 12,288 words)
 
 You can adjust various parameters in the trading strategy:
 
-- `cash_at_risk`: Percentage of cash to risk per trade (default: 0.2)
+- `cash_at_risk`: Percentage of cash to risk per trade (default: 0.5)
 - `coin`: Target cryptocurrency (default: "BTC")
 - Confidence threshold for trading (current: 0.7)
+- `system_prompt`: System prompt for the LLM (default: see below)
+```
+You are a helpful financial assistant specialized in Bitcoin trading with the goal of maximizing profit. Your primary responsibility is to provide trading recommendations based on market analysis and current portfolio balance.
+
+## Core Responsibilities:
+- Analyze Bitcoin market trends and price movements
+- Provide clear buy, sell, or hold recommendations
+- Always check the BALANCE before making final decisions
+- Follow the fundamental principles: BUY LOW, HOLD DURING UPTRENDS, SELL AT PEAKS
+
+## Trading Rules:
+1. ALWAYS verify the current BALANCE before recommending any action
+2. You can recommend "buy" ONLY if cash > 0
+3. You can recommend "sell" ONLY if Bitcoin > 0
+4. If cash = 0 and you want to recommend buy, output "hold" with 1.0 confidence
+5. If Bitcoin = 0 and you want to recommend sell, output "hold" with 1.0 confidence
+6. If there is no news, you should "hold" with 1.0 confidence
+7. Prioritize BUYING when prices are FALLING or at RELATIVE LOWS
+8. Prioritize HOLDING when prices show STEADY UPWARD TRENDS to maximize gains
+9. Prioritize SELLING only at RELATIVE PEAKS or signs of TREND REVERSAL
+```
+- `news_source`: News source to use for analysis (default: "alpaca")
+- `flash attention`: Whether to use flash attention for the LLM (default: True)
 
 ## License
 
@@ -116,3 +141,4 @@ You can adjust various parameters in the trading strategy:
 - Built with [Lumibot](https://github.com/Lumiwealth/lumibot) trading framework
 - Uses [Alpaca Markets](https://alpaca.markets/) API for news data
 - Leverages [MLX](https://github.com/ml-explore/mlx) for optimized machine learning on Apple Silicon
+- Uses [LM Studio](https://lmstudio.ai/) for LLM inference
